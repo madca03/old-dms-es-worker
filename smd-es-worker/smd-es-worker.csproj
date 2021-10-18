@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <UserSecretsId>dotnet-smd_es_worker-45DB07E1-57F3-4069-9E06-7E74E7A38394</UserSecretsId>
+        <RootNamespace>smd_es_worker</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AWSSDK.Core" Version="3.7.3.22" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.3.15" />
+        <PackageReference Include="CsvHelper" Version="27.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+        <PackageReference Include="NEST" Version="7.15.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="RabbitMQ.Client" Version="6.2.2" />
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="SeriousmdRabbitMQ, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>dll\SeriousmdRabbitMQ.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+</Project>
