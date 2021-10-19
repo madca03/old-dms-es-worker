@@ -1,0 +1,45 @@
+stages:
+    - build
+    - deploy
+
+build_stage:
+    stage: build
+    tags:
+        - linux-docker
+    script:
+        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ec2 | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
+        - sudo docker build -t smd-es-worker -f ./smd-es-worker/Dockerfile .
+        - sudo docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage
+        - sudo docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage
+    only:
+        - deploy-stage
+
+deploy_stage:
+    stage: deploy
+    tags:
+        - linux-docker
+    script:
+        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/___/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
+    only:
+        - deploy-stage
+
+build_prod:
+    stage: build
+    tags:
+        - linux-docker
+    script:
+        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ec2 | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
+        - sudo docker build -t smd-es-worker -f ./smd-es-worker/Dockerfile .
+        - sudo docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod
+        - sudo docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod
+    only:
+        - deploy-prod
+
+deploy_prod:
+    stage: deploy
+    tags:
+        - linux-docker
+    script:
+        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/___/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
+    only:
+        - deploy-prod
