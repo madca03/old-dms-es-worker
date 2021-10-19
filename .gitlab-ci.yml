@@ -19,7 +19,7 @@ deploy_stage:
     tags:
         - linux-docker
     script:
-        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/___/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
+        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/jd7pcovb80l3f2lr5vlcsxq7d/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
     only:
         - deploy-stage
 
@@ -40,6 +40,6 @@ deploy_prod:
     tags:
         - linux-docker
     script:
-        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/___/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
+        - "curl --location --request POST https://swarmpit.seriousmd.com/api/services/tmdsij0h77dyfq78cna7dtu3t/redeploy --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd2FybXBpdC1hcGkiLCJleHAiOm51bGwsImlhdCI6MTYwNTYzMDQxMSwidXNyIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifSwianRpIjoiZTU5MzVjMTUtOGU1NC00N2VjLTgwYzQtMGYxZjVmNmUxM2FmIn0.AUm8OC7JcDlmU-UHOEqLpW_z1jBYW8udqQmgL5PVgeo'"
     only:
         - deploy-prod
