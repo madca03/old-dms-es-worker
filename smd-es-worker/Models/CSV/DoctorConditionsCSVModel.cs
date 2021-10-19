@@ -26,7 +26,7 @@ namespace smd_es_worker.Models.CSV
         [Name("UI Type")]
         public string UIType { get; set; }
 	
-        [Name("Illustration File Name")]
+        [Name("Illustration Link")]
         public string IllustrationImage { get; set; }
 	
         [Name("On Web")]
