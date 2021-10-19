@@ -7,7 +7,7 @@ build_stage:
     tags:
         - linux-docker
     script:
-        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ec2 | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
+        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ecr | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
         - sudo docker build -t smd-es-worker -f ./smd-es-worker/Dockerfile .
         - sudo docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage
         - sudo docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage
@@ -28,7 +28,7 @@ build_prod:
     tags:
         - linux-docker
     script:
-        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ec2 | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
+        - sudo aws ecr get-login-password --region ap-southeast-1 --profile ecr | sudo docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd
         - sudo docker build -t smd-es-worker -f ./smd-es-worker/Dockerfile .
         - sudo docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod
         - sudo docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod
