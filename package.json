@@ -1,0 +1,12 @@
+{
+  "name": "smd-es-worker",
+  "version": "1.0.0",
+  "scripts": {
+    "docker-aws-login": "aws ecr get-login-password --region ap-southeast-1 --profile smd-docker | docker login --username AWS --password-stdin 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd",
+    "docker-build-smd-es-worker": "docker build -t smd-es-worker -f ./smd-es-worker/Dockerfile .",
+    "docker-tag-smd-es-worker-stage": "docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage",
+    "docker-tag-smd-es-worker-prod": "docker tag smd-es-worker:latest 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod",
+    "docker-push-smd-es-worker-stage": "npm run docker-build-smd-es-worker && npm run docker-tag-smd-es-worker-stage && docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-stage",
+    "docker-push-smd-es-worker-prod": "npm run docker-build-smd-es-worker && npm run docker-tag-smd-es-worker-prod && docker push 284537673428.dkr.ecr.ap-southeast-1.amazonaws.com/smd:smd-es-worker-prod"
+  }
+}
