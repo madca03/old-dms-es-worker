@@ -36,6 +36,7 @@ namespace smd_es_worker.Managers
 
         private readonly ElasticIndices esIndices;
         private readonly IElasticClient esClient;
+        private readonly List<string> validRefDataTypes;
         
         public UpdateESReferenceDataQueueManager(
             ILogger logger, 
@@ -47,6 +48,10 @@ namespace smd_es_worker.Managers
         {
             esIndices = serviceProvider.GetService<IOptions<ElasticIndices>>()?.Value;
             esClient = serviceProvider.GetService<ElasticsearchClient>()?.Client;
+            validRefDataTypes = typeof(ReferenceDataTypes).GetFields()
+                .Where(x => x.IsLiteral && x.FieldType == typeof(string))
+                .Select(x => (string)x.GetValue(null))
+                .ToList();
         }
 
         protected override async Task ProcessMessage(string message, IBasicConsumer model, BasicDeliverEventArgs ea)
@@ -54,6 +59,50 @@ namespace smd_es_worker.Managers
             var (req, success) = DeserializeRequestMessage<UpdateESReferenceDataRequestModel>(message, ea);
             if (!success) return;
 
+            switch (req.Type)
+            {
+                case ReferenceDataTypes.CONDITIONS:
+                    var (docs, bulkDescriptor) = await GetUpdatedDoctorConditionsDocs(req);
+                    await DoBulkUpdate(docs, bulkDescriptor, req, ea);
+                    break;
+                default:
+                    HandleFailure(ea, new BaseErrorRpcResponseModel
+                    {
+                        Error = RMQResponseStatus.UNKNOWN_REF_DATA_TYPE.Message,
+                        Request = req,
+                        Status = RMQResponseStatus.UNKNOWN_REF_DATA_TYPE.StatusCode
+                    });
+                    break;
+            }
+        }
+
+        protected override bool IsValid<T>(T req)
+        {
+            if (req is not UpdateESReferenceDataRequestModel request) return false;
+            if (string.IsNullOrEmpty(request.Type) || string.IsNullOrEmpty(request.CSVS3Link)) return false;
+            if (!validRefDataTypes.Contains(request.Type)) return false;
+            return true;
+        }
+
+        private async Task DoBulkUpdate<T>(List<T> docs, BulkDescriptor bulkDescriptor, UpdateESReferenceDataRequestModel req, BasicDeliverEventArgs ea)
+        {
+            var bulkResponse = await esClient.BulkAsync(bulkDescriptor);
+            if (!bulkResponse.IsValid)
+            {
+                HandleFailure(ea, new BaseErrorRpcResponseModel
+                {
+                    Error = bulkResponse.OriginalException,
+                    Request = req,
+                    Status = RMQResponseStatus.BULK_UPDATE_FAILED.StatusCode
+                });
+                return;
+            }
+
+            HandleSuccess(ea, new UpdateESReferenceDataResponseModel<T> { UpdatedDocs = docs });
+        }
+
+        private async Task<(List<DoctorConditionsESModel>, BulkDescriptor)> GetUpdatedDoctorConditionsDocs(UpdateESReferenceDataRequestModel req)
+        {
             var csv = await ReadCSVFromUrl<DoctorConditionsCSVModel>(req.CSVS3Link);
             var bulkDescriptor = new BulkDescriptor();
             var docs = new List<DoctorConditionsESModel>();
@@ -72,19 +121,7 @@ namespace smd_es_worker.Managers
                     .DocAsUpsert());
             }
 
-            var bulkResponse = await esClient.BulkAsync(bulkDescriptor);
-            if (!bulkResponse.IsValid)
-            {
-                HandleFailure(ea, new BaseErrorRpcResponseModel
-                {
-                    Error = bulkResponse.OriginalException,
-                    Request = req,
-                    Status = RMQResponseStatus.BULK_UPDATE_FAILED.StatusCode
-                });
-                return;
-            }
-
-            HandleSuccess(ea, new UpdateESReferenceDataResponseModel { UpdatedDocs = docs });
+            return (docs, bulkDescriptor);
         }
 
         private async Task<IEnumerable<T>> ReadCSVFromUrl<T>(string url)
