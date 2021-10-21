@@ -4,16 +4,10 @@ using smd_es_worker.Models.CSV;
 
 namespace smd_es_worker.Models.Elasticsearch
 {
-    public class DoctorConditionsESModel
+    public class DoctorConditionsESModel : BaseReferenceDataESModel
     {
-        [Text(Name = "name")]
-        public string Name { get; set; }
-
         [Keyword(Name = "title")]
         public string Title { get; set; }
-
-        [Keyword(Name = "uri")]
-        public string URI { get; set; }
 
         [Keyword(Name = "image")]
         public string Image { get; set; }
@@ -32,12 +26,6 @@ namespace smd_es_worker.Models.Elasticsearch
 
         [Boolean(Name = "onWeb")]
         public bool OnWeb { get; set; }
-
-        [Object(Name = "meta")]
-        public ReferenceDataMetaESModel Meta { get; set; }
-
-        [Object(Name = "blurb")]
-        public ReferenceDataBlurbESModel Blurb { get; set; }
 
         public DoctorConditionsESModel()
         {
