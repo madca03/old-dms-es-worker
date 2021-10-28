@@ -62,9 +62,15 @@ namespace smd_es_worker.Managers
             switch (req.Type)
             {
                 case ReferenceDataTypes.CONDITIONS:
-                    var (docs, bulkDescriptor) = await GetUpdatedDoctorConditionsDocs(req);
-                    await DoBulkUpdate(docs, bulkDescriptor, req, ea);
+                    var (conditionDocs, conditionDocsBulkDescriptor) = await GetUpdatedDoctorConditionsDocs(req);
+                    await DoBulkUpdate(conditionDocs, conditionDocsBulkDescriptor, req, ea);
                     break;
+                
+                case ReferenceDataTypes.SERVICES:
+                    var (servicesDocs, servicesDocsBulkDescriptor) = await GetUpdatedDoctorServicesDocs(req);
+                    await DoBulkUpdate(servicesDocs, servicesDocsBulkDescriptor, req, ea);
+                    break;
+                
                 default:
                     HandleFailure(ea, new BaseErrorRpcResponseModel
                     {
@@ -111,6 +117,7 @@ namespace smd_es_worker.Managers
             {
                 row.Specializations = row.RawSpecializations.Split("\n").Select(x => x.Trim()).ToList();
                 row.OnWeb = row.RawOnWeb == "Yes";
+                row.UIType = row.RawUIType == "Illustrated" ? UITypes.ILLUSTRATED : UITypes.TEXT;
                 var doc = new DoctorConditionsESModel(row);
                 docs.Add(doc);
 
@@ -123,7 +130,31 @@ namespace smd_es_worker.Managers
 
             return (docs, bulkDescriptor);
         }
+        
+        private async Task<(List<DoctorServicesESModel>, BulkDescriptor)> GetUpdatedDoctorServicesDocs(UpdateESReferenceDataRequestModel req)
+        {
+            var csv = await ReadCSVFromUrl<DoctorServicesCSVModel>(req.CSVS3Link);
+            var bulkDescriptor = new BulkDescriptor();
+            var docs = new List<DoctorServicesESModel>();
+            
+            foreach (var row in csv)
+            {
+                row.OnWeb = row.RawOnWeb == "Yes";
+                row.OnNSServices = row.RawOnNSServices == "Yes";
+                row.UIType = row.RawUIType == "Illustrated" ? UITypes.ILLUSTRATED : UITypes.TEXT;
+                var doc = new DoctorServicesESModel(row);
+                docs.Add(doc);
 
+                bulkDescriptor.Update<DoctorServicesESModel>(u => u
+                    .Index(esIndices.Services)
+                    .Id(row.Id)
+                    .Doc(doc)
+                    .DocAsUpsert());
+            }
+
+            return (docs, bulkDescriptor);
+        }
+        
         private async Task<IEnumerable<T>> ReadCSVFromUrl<T>(string url)
         {
             var client = new HttpClient();

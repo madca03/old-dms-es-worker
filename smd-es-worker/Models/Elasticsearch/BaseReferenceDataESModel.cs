@@ -13,6 +13,10 @@ namespace smd_es_worker.Models.Elasticsearch
         [JsonProperty("uri")]
         public string URI { get; set; }
         
+        [Number(Name = "doctorCount")]
+        [JsonProperty("doctorCount")]
+        public string DoctorCount { get; set; }
+        
         [Object(Name = "meta")]
         [JsonProperty("meta")]
         public ReferenceDataMetaESModel Meta { get; set; }
