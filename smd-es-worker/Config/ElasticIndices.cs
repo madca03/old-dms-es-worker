@@ -8,5 +8,6 @@
         public string Specializations { get; set; }
         public string Conditions { get; set; }
         public string Services { get; set; }
+        public string Doctors { get; set; }
     }
 }

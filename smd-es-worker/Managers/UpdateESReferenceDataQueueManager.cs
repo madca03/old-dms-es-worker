@@ -120,6 +120,17 @@ namespace smd_es_worker.Managers
                 row.UIType = row.RawUIType == "Illustrated" ? UITypes.ILLUSTRATED : UITypes.TEXT;
                 var doc = new DoctorConditionsESModel(row);
                 docs.Add(doc);
+                
+                var countDescriptor = new CountDescriptor<DoctorESModel>()
+                    .Index(esIndices.Doctors)
+                    .Query(q => q.Terms(t => t
+                        .Field(f => f.Professional.Specialty.Suffix("keyword"))
+                        .Terms(doc.Specializations)));
+
+                var countResponse = await esClient.CountAsync<DoctorESModel>(_ => countDescriptor);
+                if (!countResponse.IsValid) throw countResponse.OriginalException;
+
+                doc.DoctorCount = (int) countResponse.Count;
 
                 bulkDescriptor.Update<DoctorConditionsESModel>(u => u
                     .Index(esIndices.Conditions)
@@ -144,6 +155,15 @@ namespace smd_es_worker.Managers
                 row.UIType = row.RawUIType == "Illustrated" ? UITypes.ILLUSTRATED : UITypes.TEXT;
                 var doc = new DoctorServicesESModel(row);
                 docs.Add(doc);
+
+                var countDescriptor = new CountDescriptor<DoctorESModel>()
+                    .Index(esIndices.Doctors)
+                    .Query(q => q.Term(t => t.Field(f => f.Services).Value(doc.Id)));
+
+                var countResponse = await esClient.CountAsync<DoctorESModel>(_ => countDescriptor);
+                if (!countResponse.IsValid) throw countResponse.OriginalException;
+
+                doc.DoctorCount = (int) countResponse.Count;
 
                 bulkDescriptor.Update<DoctorServicesESModel>(u => u
                     .Index(esIndices.Services)

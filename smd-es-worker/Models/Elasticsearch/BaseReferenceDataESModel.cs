@@ -13,9 +13,9 @@ namespace smd_es_worker.Models.Elasticsearch
         [JsonProperty("uri")]
         public string URI { get; set; }
         
-        [Number(Name = "doctorCount")]
+        [Number(Name = "doctor_count")]
         [JsonProperty("doctorCount")]
-        public string DoctorCount { get; set; }
+        public int? DoctorCount { get; set; }
         
         [Object(Name = "meta")]
         [JsonProperty("meta")]
