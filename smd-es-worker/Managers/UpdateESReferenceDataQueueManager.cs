@@ -17,7 +17,6 @@ using Serilog;
 using SeriousmdRabbitMQ.Managers;
 using SeriousmdRabbitMQ.Models;
 using SeriousmdRabbitMQ.RabbitMQ;
-using SeriousmdRabbitMQ.References;
 using smd_es_worker.Clients;
 using smd_es_worker.Config;
 using smd_es_worker.Models.CSV;
@@ -69,6 +68,11 @@ namespace smd_es_worker.Managers
                 case ReferenceDataTypes.SERVICES:
                     var (servicesDocs, servicesDocsBulkDescriptor) = await GetUpdatedDoctorServicesDocs(req);
                     await DoBulkUpdate(servicesDocs, servicesDocsBulkDescriptor, req, ea);
+                    break;
+                
+                case ReferenceDataTypes.HMOS:
+                    var (hmoDocs, hmoDocsBulkDescriptor) = await GetUpdatedDoctorHMODocs(req);
+                    await DoBulkUpdate(hmoDocs, hmoDocsBulkDescriptor, req, ea);
                     break;
                 
                 default:
@@ -167,6 +171,42 @@ namespace smd_es_worker.Managers
 
                 bulkDescriptor.Update<DoctorServicesESModel>(u => u
                     .Index(esIndices.Services)
+                    .Id(row.Id)
+                    .Doc(doc)
+                    .DocAsUpsert());
+            }
+
+            return (docs, bulkDescriptor);
+        }
+
+        private async Task<(List<DoctorHMOESModel>, BulkDescriptor)> GetUpdatedDoctorHMODocs(
+            UpdateESReferenceDataRequestModel req)
+        {
+            var csv = await ReadCSVFromUrl<DoctorHMOCSVModel>(req.CSVS3Link);
+            var bulkDescriptor = new BulkDescriptor();
+            var docs = new List<DoctorHMOESModel>();
+
+            foreach (var row in csv)
+            {
+                var doc = new DoctorHMOESModel(row);
+                docs.Add(doc);
+
+                var countDescriptor = new CountDescriptor<DoctorESModel>()
+                    .Index(esIndices.Doctors)
+                    .Query(q => q.Nested(n => n
+                        .Path(f => f.Clinics)
+                        .Query(qn => qn.Term(t => t
+                            .Field(f => f.Clinics.First().HMOs.Suffix("keyword"))
+                            .Value(row.Name)
+                        ))));
+
+                var countResponse = await esClient.CountAsync<DoctorESModel>(_ => countDescriptor);
+                if (!countResponse.IsValid) throw countResponse.OriginalException;
+
+                doc.DoctorCount = (int)countResponse.Count;
+
+                bulkDescriptor.Update<DoctorHMOESModel>(u => u
+                    .Index(esIndices.HMOs)
                     .Id(row.Id)
                     .Doc(doc)
                     .DocAsUpsert());

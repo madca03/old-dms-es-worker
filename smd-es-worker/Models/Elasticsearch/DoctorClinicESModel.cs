@@ -13,6 +13,10 @@ namespace smd_es_worker.Models.Elasticsearch
         [Boolean(Name = "visible")]
         [JsonProperty("visible")]
         public bool? Visible { get; set; }
+
+        [Text(Name = "hmos")]
+        [JsonProperty("hmos")]
+        public List<string> HMOs { get; set; }
         
         [Text(Name = "clinicImage")]
         [JsonProperty("clinicImage")]
