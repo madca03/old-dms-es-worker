@@ -24,6 +24,12 @@ namespace smd_es_worker.Models.CSV
 
         [Name("Illustration Link PNG")]
         public string IllustrationImagePNG { get; set; }
+        
+        [Name("Illustration Link PNG 1x")]
+        public string IllustrationImagePNG1x { get; set; }
+
+        [Name("Illustration Link PNG 3x")]
+        public string IllustrationImagePNG3x { get; set; }
 
         [Name("Illustration Link SVG")]
         public string IllustrationImageSVG { get; set; }
